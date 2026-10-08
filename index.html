@@ -1,0 +1,163 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Commerce API</title>
+</head>
+
+<body>
+
+    <h1>E-Commerce API</h1>
+
+    <p>My FastAPI E-Commerce Backend</p>
+
+    <h2>Create Product</h2>
+
+    <input type="text" id="name" placeholder="Product Name">
+    <br><br>
+
+    <input type="number" id="price" placeholder="Price">
+    <br><br>
+
+    <input type="text" id="description" placeholder="Description">
+    <br><br>
+
+    <input type="number" id="stock" placeholder="Stock">
+    <br><br>
+
+    <input type="text" id="category" placeholder="Category">
+    <br><br>
+
+    <button onclick="createProduct()">Create Product</button>
+
+    <p id="result"></p>
+
+
+    <h2>Products</h2>
+
+    <button onclick="loadProducts()">View Products</button>
+
+    <div id="products"></div>
+
+
+    <script>
+
+        async function createProduct() {
+
+            const product = {
+                name: document.getElementById("name").value,
+                price: Number(document.getElementById("price").value),
+                description: document.getElementById("description").value,
+                stock: Number(document.getElementById("stock").value),
+                category: document.getElementById("category").value
+            };
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/products",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(product)
+                }
+            );
+
+            const data = await response.json();
+
+            document.getElementById("result").innerText =
+                data.message;
+        }
+
+
+        async function loadProducts() {
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/products"
+            );
+
+            const products = await response.json();
+
+            let html = "";
+
+            products.forEach(function(product) {
+
+                html +=
+                    "<div>" +
+                    "<h3>" + product.name + "</h3>" +
+                    "<p>Price: " + product.price + "</p>" +
+                    "<p>Description: " + product.description + "</p>" +
+                    "<p>Stock: " + product.stock + "</p>" +
+                    "<p>Category: " + product.category + "</p>" +
+
+                    "<button onclick=\"updateProduct('" +
+                    product._id +
+                    "')\">Update</button> " +
+
+                    "<button onclick=\"deleteProduct('" +
+                    product._id +
+                    "')\">Delete</button>" +
+
+                    "<hr>" +
+                    "</div>";
+
+            });
+
+            document.getElementById("products").innerHTML = html;
+        }
+
+
+        async function updateProduct(productId) {
+
+            const newPrice = prompt("Enter new price:");
+
+            if (newPrice === null) {
+                return;
+            }
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/products/" + productId,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        name: "Updated Product",
+                        price: Number(newPrice),
+                        description: "Updated description",
+                        stock: 10,
+                        category: "Updated"
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            alert(data.message);
+
+            loadProducts();
+        }
+
+
+        async function deleteProduct(productId) {
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/products/" + productId,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            const data = await response.json();
+
+            alert(data.message);
+
+            loadProducts();
+        }
+
+    </script>
+
+</body>
+</html>
+```
